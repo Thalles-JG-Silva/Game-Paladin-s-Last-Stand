@@ -1,12 +1,20 @@
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import javax.swing.*;
 
+/**
+ * Classe principal que inicializa o jogo.
+ */
 public class Game {
     public static void main(String[] args) {
-        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setTitle("Desafio do Paladino");
-        config.setWindowedMode(1280, 720); // Resolução aumentada para HD
-        config.useVsync(true);
-        new Lwjgl3Application(new GameScreen(), config);
+        JFrame frame = new JFrame("Jogo 2D - Paladin's Last Stand");
+        GamePanel gamePanel = new GamePanel();
+
+        frame.add(gamePanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+
+        gamePanel.startGame();
     }
 }

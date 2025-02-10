@@ -1,35 +1,43 @@
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import javax.swing.*;
+import java.awt.*;
 
+/**
+ * Classe que representa os itens de poder coletáveis pelo jogador.
+ */
 public class PowerItem {
-    private Texture texture;
-    private Vector2 position;
-    private Rectangle bounds;
-    private final float SPEED = 3f;
+    private int x, y, width, height;
+    private Image powerItemImage;
 
-    public PowerItem(float x, float y) {
-        texture = new Texture(Gdx.files.internal("assets/moeda.png"));
-        position = new Vector2(x, y);
-        bounds = new Rectangle(position.x, position.y, texture.getWidth(), texture.getHeight());
+    /**
+     * Construtor do PowerItem.
+     * @param x Posição inicial no eixo X.
+     */
+    public PowerItem(int x) {
+        this.x = x;
+        this.y = 250;  // 🔥 Ajustado para não ficar muito alto ou desaparecer
+        this.width = 30;
+        this.height = 30;
+        powerItemImage = new ImageIcon("assets/Imagens/PowerItem/Power_Item_01.png").getImage();
     }
 
+    /**
+     * Atualiza a posição do PowerItem (movendo para a esquerda).
+     */
     public void update() {
-        position.x -= SPEED;
-        bounds.setPosition(position);
+        x -= 3;
     }
 
-    public void draw(SpriteBatch batch) {
-        batch.draw(texture, position.x, position.y);
+    /**
+     * Renderiza o PowerItem na tela.
+     */
+    public void draw(Graphics g) {
+        g.drawImage(powerItemImage, x, y, width, height, null);
     }
 
+    /**
+     * Retorna a hitbox do item.
+     */
     public Rectangle getBounds() {
-        return bounds;
-    }
-
-    public void dispose() {
-        texture.dispose();
+        return new Rectangle(x, y, width, height);
     }
 }

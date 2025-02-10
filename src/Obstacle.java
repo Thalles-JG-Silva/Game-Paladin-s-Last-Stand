@@ -1,45 +1,60 @@
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import javax.swing.*;
+import java.awt.*;
 
+/**
+ * Classe que representa os obstáculos do jogo.
+ */
 public class Obstacle {
-    private Texture texture;
-    private Vector2 position;
-    private Rectangle bounds;
-    private static float speed = 2f;
-    private final float SCALE = 0.5f;
-    private static final float SPEED_INCREMENT = 0.1f;
+    private int x, y, width, height;
+    private Image[] obstacleFrames;
+    private int frameIndex;
+    private int frameDelay;
 
-    public Obstacle(float x, float y){
-        texture = new Texture(Gdx.files.internal("assets/obstacle.png"));
-        position = new Vector2(x, y);
-        bounds = new Rectangle(position.x + 10, position.y, (texture.getWidth() - 20) * SCALE, texture.getHeight() * SCALE);
+    /**
+     * Construtor do obstáculo.
+     * @param x Posição inicial no eixo X.
+     */
+    public Obstacle(int x) {
+        this.x = x;
+        this.y = 300;  // 🔥 Ajustado para alinhar com o chão
+        this.width = 50;
+        this.height = 60;
+
+        // 🔥 Carregar frames de animação dos obstáculos
+        obstacleFrames = new Image[10];
+        for (int i = 0; i < 10; i++) {
+            obstacleFrames[i] = new ImageIcon("assets/Imagens/Obstacle/male/Walk_0" + (i + 1) + ".png").getImage();
+        }
+
+        frameIndex = 0;
+        frameDelay = 0;
     }
 
-    public void update(){
-        position.x -= speed;
-        bounds.setPosition(position.x + 10, position.y);
+    /**
+     * Atualiza a posição e animação do obstáculo.
+     */
+    public void update() {
+        x -= 5;
+
+        // 🔥 Atualizar animação
+        frameDelay++;
+        if (frameDelay > 5) {
+            frameIndex = (frameIndex + 1) % 10;
+            frameDelay = 0;
+        }
     }
 
-    public void draw(SpriteBatch batch){
-        batch.draw(texture, position.x, position.y, texture.getWidth() * SCALE, texture.getHeight() * SCALE);
+    /**
+     * Renderiza o obstáculo na tela.
+     */
+    public void draw(Graphics g) {
+        g.drawImage(obstacleFrames[frameIndex], x, y, width, height, null);
     }
 
-    public Rectangle getBounds(){
-        return bounds;
-    }
-
-    public boolean isOffScreen(){
-        return position.x + bounds.getWidth() < 0;
-    }
-
-    public static void increaseSpeed() {
-        speed += SPEED_INCREMENT;
-    }
-
-    public void dispose(){
-        texture.dispose();
+    /**
+     * Retorna a hitbox do obstáculo.
+     */
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, width, height);
     }
 }
