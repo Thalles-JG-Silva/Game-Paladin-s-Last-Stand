@@ -7,13 +7,14 @@ import java.awt.*;
 public class Background {
     private Image backgroundImage;
     private int x;
-    private final int WIDTH = 800;   // Ajustado para a largura da tela
-    private final int HEIGHT = 400;  // Agora ocupa toda a tela do jogo
+    private final int WIDTH = 800;   // Largura da tela
+    private final int HEIGHT = 400;  // Altura da tela
 
     /**
      * Construtor que carrega o background.
      */
     public Background() {
+        // Carrega a imagem de fundo
         backgroundImage = new ImageIcon("assets/Imagens/Background/Background_Deserto.png").getImage();
         x = 0;
     }
@@ -30,9 +31,10 @@ public class Background {
 
     /**
      * Renderiza o background na tela.
+     * @param g Objeto Graphics para desenhar
      */
     public void draw(Graphics g) {
-        g.drawImage(backgroundImage, x, 0, WIDTH, HEIGHT, null);  // 🔥 Agora cobre toda a tela
+        g.drawImage(backgroundImage, x, 0, WIDTH, HEIGHT, null);
         g.drawImage(backgroundImage, x + WIDTH, 0, WIDTH, HEIGHT, null);
     }
 }

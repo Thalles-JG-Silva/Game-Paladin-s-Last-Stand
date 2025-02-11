@@ -2,80 +2,213 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Classe que representa o jogador.
+ * Classe que representa o jogador (Player).
  */
 public class Player {
-    private int x, y, width, height;
-    private int velocityY;
+
+    // Campos de posição, física, etc.
+    private int x, y;
+    private int width, height;
+    private double velocityY;
     private boolean isJumping;
+    private final double GRAVITY = 0.6;
+    private final double JUMP_SPEED = -10.0;
+
+    // Animação de corrida
     private Image[] runFrames;
-    private int frameIndex;
-    private int frameDelay;
+    private int runFrameIndex;
+    private int runFrameDelay;
+
+    // Vidas e invulnerabilidade
+    private int lives;
+    private boolean invulnerable;
+    private long invulnerableStartTime;
+    private final long INVULNERABLE_DURATION = 2000;
+    private boolean isVisible;
+    private int blinkCounter;
+
+    // Quantidade de poderes disponíveis
+    private int powerCount;
+
+    // Referência ao painel do jogo
+    private GamePanel gamePanel;
 
     /**
-     * Construtor do jogador.
+     * Construtor do Player que recebe o GamePanel.
      */
-    public Player() {
+    public Player(GamePanel panel) {
+        this.gamePanel = panel;
+
+        // Posição inicial
         this.x = 100;
-        this.y = 300;  // 🔥 Ajustado para alinhar com o chão
+        this.y = 300;
         this.width = 50;
         this.height = 60;
-        this.isJumping = false;
+
+        // Pulo
         this.velocityY = 0;
+        this.isJumping = false;
 
-        // 🔥 Carregar frames da animação de corrida
-        runFrames = new Image[10];
-        for (int i = 0; i < 10; i++) {
-            runFrames[i] = new ImageIcon("assets/Imagens/Player/Run_0" + (i + 1) + ".png").getImage();
-        }
+        // Frames de corrida
+        runFrames = loadRunFrames();
+        runFrameIndex = 0;
+        runFrameDelay = 0;
 
-        frameIndex = 0;
-        frameDelay = 0;
+        // 3 vidas iniciais
+        lives = 3;
+
+        // Invulnerabilidade
+        invulnerable = false;
+        invulnerableStartTime = 0;
+        isVisible = true;
+        blinkCounter = 0;
+
+        // Sem poderes no começo
+        powerCount = 0;
     }
 
     /**
-     * Atualiza a posição e animação do jogador.
+     * Carrega frames de corrida do Player
+     */
+    private Image[] loadRunFrames() {
+        Image[] frames = new Image[10];
+        for (int i = 0; i < 10; i++) {
+            String filePath = "assets/Imagens/Player/Run (" + (i + 1) + ").png";
+            frames[i] = new ImageIcon(filePath).getImage();
+        }
+        return frames;
+    }
+
+    /**
+     * Atualiza a lógica do Player (gravidade, animação, invulnerabilidade)
      */
     public void update() {
-        if (isJumping) {
-            y += velocityY;
-            velocityY += 1;
-            if (y >= 300) {  // 🔥 Garantir que o player não afunde
-                y = 300;
-                isJumping = false;
+        // Animação de corrida se estiver no chão
+        if (!isJumping) {
+            runFrameDelay++;
+            if (runFrameDelay > 5) {
+                runFrameIndex = (runFrameIndex + 1) % runFrames.length;
+                runFrameDelay = 0;
             }
         }
 
-        // 🔥 Atualizar animação
-        frameDelay++;
-        if (frameDelay > 5) {
-            frameIndex = (frameIndex + 1) % 10;
-            frameDelay = 0;
+        // Física de pulo
+        y += velocityY;
+        velocityY += GRAVITY;
+        if (y > 300) {
+            y = 300;
+            velocityY = 0;
+            isJumping = false;
+        }
+
+        // Invulnerabilidade
+        if (invulnerable) {
+            long elapsed = System.currentTimeMillis() - invulnerableStartTime;
+            if (elapsed > INVULNERABLE_DURATION) {
+                invulnerable = false;
+                isVisible = true;
+            } else {
+                blinkCounter++;
+                if (blinkCounter % 10 == 0) {
+                    isVisible = !isVisible;
+                }
+            }
         }
     }
 
     /**
-     * Faz o jogador pular.
+     * Desenha o player, piscando se estiver invulnerável
+     */
+    public void draw(Graphics g) {
+        if (invulnerable && !isVisible) {
+            return;
+        }
+        g.drawImage(runFrames[runFrameIndex], x, y, width, height, null);
+    }
+
+    /**
+     * Inicia o pulo, se não estiver no ar
      */
     public void jump() {
         if (!isJumping) {
             isJumping = true;
-            velocityY = -15;
-            SoundManager.play("Player_Pula.mp3");
+            velocityY = JUMP_SPEED;
+            SoundManager.play("Player Pula.wav");
         }
     }
 
     /**
-     * Renderiza o jogador na tela.
+     * Se tiver poderes (powerCount > 0), dispara um Power
+     * pelo GamePanel.shootPower(...)
      */
-    public void draw(Graphics g) {
-        g.drawImage(runFrames[frameIndex], x, y, width, height, null);
+    public void attack() {
+        if (powerCount > 0) {
+            // Dispara o poder à frente do Player
+            int startX = x + width;
+            int startY = y + height / 2;
+            gamePanel.shootPower(startX, startY);
+
+            // Diminui um poder
+            powerCount--;
+            SoundManager.play("Player usa Power.wav");
+        }
     }
 
     /**
-     * Retorna a hitbox do jogador.
+     * Sofre dano, se não estiver invulnerável
+     */
+    public void takeDamage() {
+        if (!invulnerable) {
+            lives--;
+            if (lives < 0) {
+                lives = 0;
+            }
+            invulnerable = true;
+            invulnerableStartTime = System.currentTimeMillis();
+            blinkCounter = 0;
+            isVisible = true;
+        }
+    }
+
+    /**
+     * Verifica se morreu
+     */
+    public boolean isDead() {
+        return (lives <= 0);
+    }
+
+    /**
+     * Retorna se está invulnerável
+     */
+    public boolean isInvulnerable() {
+        return invulnerable;
+    }
+
+    /**
+     * Retângulo de colisão
      */
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
+    }
+
+    /**
+     * Retorna vidas
+     */
+    public int getLives() {
+        return lives;
+    }
+
+    /**
+     * Retorna quantos poderes tem
+     */
+    public int getPowerCount() {
+        return powerCount;
+    }
+
+    /**
+     * Incrementa ao coletar um PowerItem
+     */
+    public void incrementPowerCount() {
+        powerCount++;
     }
 }
