@@ -145,7 +145,7 @@ public class GamePanel extends JPanel implements ActionListener {
      */
     private void addObstacle() {
         boolean isFemale = random.nextBoolean();
-        obstacles.add(new Obstacle(WIDTH + random.nextInt(600),
+        obstacles.add(new Obstacle(WIDTH + random.nextInt(800),
                 isFemale ? "female" : "male"));
     }
 
