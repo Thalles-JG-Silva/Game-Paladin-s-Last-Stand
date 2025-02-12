@@ -11,8 +11,8 @@ public class Player {
     private int width, height;
     private double velocityY;
     private boolean isJumping;
-    private final double GRAVITY = 0.6;
-    private final double JUMP_SPEED = -10.0;
+    private final double GRAVITY = 0.9;
+    private final double JUMP_SPEED = -14.0;
 
     // Animação de corrida
     private Image[] runFrames;
@@ -188,8 +188,13 @@ public class Player {
      * Retângulo de colisão
      */
     public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height);
-    }
+        int hitboxWidth = (int) (width * 0.7);
+        int hitboxHeight = (int) (height * 0.8);
+        int offsetX = (width - hitboxWidth) / 2;
+        int offsetY = (height - hitboxHeight) / 2;
+        
+        return new Rectangle(x + offsetX, y + offsetY, hitboxWidth, hitboxHeight);
+    }    
 
     /**
      * Retorna vidas

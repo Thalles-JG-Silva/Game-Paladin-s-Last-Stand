@@ -106,6 +106,11 @@ public class Obstacle {
      * Retorna a hitbox do obstáculo.
      */
     public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height);
-    }
+        int hitboxWidth = (int) (width * 0.75);
+        int hitboxHeight = (int) (height * 0.8);
+        int offsetX = (width - hitboxWidth) / 2;
+        int offsetY = (height - hitboxHeight) / 2;
+    
+        return new Rectangle(x + offsetX, y + offsetY, hitboxWidth, hitboxHeight);
+    }    
 }

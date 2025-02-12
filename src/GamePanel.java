@@ -36,6 +36,20 @@ public class GamePanel extends JPanel implements ActionListener {
     private Font gameFont;
     private Random random;
 
+    private void triggerVictory() {
+        // Toca a música de vitória
+        SoundManager.play("Vitoria.wav");
+
+        // Define o estado do jogo como GAMEOVER (para exibir a mensagem)
+        gameState = GameState.GAMEOVER;
+
+        // Salva o tempo atual para controlar o retorno ao menu
+        gameOverStartTime = System.currentTimeMillis();
+
+        // Define um Timer para voltar ao MENU após alguns segundos
+        new Timer((int) GAMEOVER_DURATION, _ -> gameState = GameState.MENU).start();
+    }
+
     // Momento em que o jogo entrou em GAMEOVER
     private long gameOverStartTime;
     // Quanto tempo ficar em GAMEOVER antes de voltar ao MENU (ms)
@@ -131,7 +145,7 @@ public class GamePanel extends JPanel implements ActionListener {
      */
     private void addObstacle() {
         boolean isFemale = random.nextBoolean();
-        obstacles.add(new Obstacle(WIDTH + random.nextInt(300),
+        obstacles.add(new Obstacle(WIDTH + random.nextInt(600),
                 isFemale ? "female" : "male"));
     }
 
@@ -143,7 +157,8 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Adiciona um item de poder à lista, randomizando a posição X dentro de um intervalo.
+     * Adiciona um item de poder à lista, randomizando a posição X dentro de um
+     * intervalo.
      */
     private void addPowerItem() {
         powerItems.add(new PowerItem(WIDTH + random.nextInt(500)));
@@ -256,6 +271,11 @@ public class GamePanel extends JPanel implements ActionListener {
                 totalMoedasColetadas++;
                 SoundManager.play("Pegar Moedas.wav");
                 addMoeda();
+
+                // Verifica se o jogador coletou 10 moedas
+                if (totalMoedasColetadas >= 10) {
+                    triggerVictory();
+                }
             }
         }
 
@@ -361,17 +381,25 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     private void drawGameOver(Graphics g) {
-        drawGame(g);
-
         g.setFont(new Font("Arial", Font.BOLD, 30));
-        g.setColor(Color.RED);
-        String msg = "GAME OVER!";
-        int msgWidth = g.getFontMetrics().stringWidth(msg);
-        g.drawString(msg, (WIDTH - msgWidth) / 2, HEIGHT / 2);
+
+        if (totalMoedasColetadas >= 10) {
+            g.setColor(Color.BLUE);
+            String msg = "VITÓRIA!";
+            int msgWidth = g.getFontMetrics().stringWidth(msg);
+            g.drawString(msg, (WIDTH - msgWidth) / 2, HEIGHT / 2);
+        } else {
+            g.setColor(Color.RED);
+            String msg = "GAME OVER!";
+            int msgWidth = g.getFontMetrics().stringWidth(msg);
+            g.drawString(msg, (WIDTH - msgWidth) / 2, HEIGHT / 2);
+        }
+
     }
 
     /**
      * Chamado pelo Player para criar/disparar um novo poder.
+     * 
      * @param startX Posição X inicial do poder
      * @param startY Posição Y inicial do poder
      */
@@ -384,6 +412,7 @@ public class GamePanel extends JPanel implements ActionListener {
     public GameState getGameState() {
         return gameState;
     }
+
     public void setGameState(GameState state) {
         this.gameState = state;
     }
