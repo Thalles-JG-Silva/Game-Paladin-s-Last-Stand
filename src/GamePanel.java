@@ -272,8 +272,8 @@ public class GamePanel extends JPanel implements ActionListener {
                 SoundManager.play("Pegar Moedas.wav");
                 addMoeda();
 
-                // Verifica se o jogador coletou 10 moedas
-                if (totalMoedasColetadas >= 10) {
+                // Verifica se o jogador coletou 20 moedas
+                if (totalMoedasColetadas >= 20) {
                     triggerVictory();
                 }
             }
@@ -361,6 +361,7 @@ public class GamePanel extends JPanel implements ActionListener {
         g.drawString("Moedas: " + totalMoedasColetadas, 10, 40);
         g.drawString("Poderes: " + player.getPowerCount(), 10, 60);
         g.drawString("Controles: SPACE - Pular | X - Usar Poder", 10, 80);
+        g.drawString("Pegue 20 moedas para vencer!", 10, 100);
     }
 
     private void drawMenu(Graphics g) {
@@ -383,7 +384,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private void drawGameOver(Graphics g) {
         g.setFont(new Font("Arial", Font.BOLD, 30));
 
-        if (totalMoedasColetadas >= 10) {
+        if (totalMoedasColetadas >= 20) {
             g.setColor(Color.BLUE);
             String msg = "VITÓRIA!";
             int msgWidth = g.getFontMetrics().stringWidth(msg);
